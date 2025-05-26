@@ -25,7 +25,7 @@ const TermsModal = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       onClick={onClose}
     >
       <div
@@ -39,7 +39,10 @@ const TermsModal = ({ isOpen, onClose }) => {
           <p>1. You must be at least 18 years old to register.</p>
           <p>2. Your account information must be accurate and complete.</p>
           <p>3. You are responsible for your login credentials and security.</p>
-          <p>4. Any violation of platform policies may result in account suspension.</p>
+          <p>
+            4. Any violation of platform policies may result in account
+            suspension.
+          </p>
           <p>5. We reserve the right to update terms at any time.</p>
           <p>6. By registering, you agree to abide by these terms.</p>
         </div>
