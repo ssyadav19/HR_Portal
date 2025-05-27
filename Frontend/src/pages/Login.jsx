@@ -1,6 +1,7 @@
 import { React, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,14 +21,22 @@ const Login = () => {
   const handelSubmit = async (e) => {
     e.preventDefault();
     console.log(data);
+    try {
+      const res = await axios.post(
+        "http://localhost:4500/api/auth/login",
+        data
+      );
 
-    const res = await axios.post("http://localhost:4500/api/auth/login", data);
+      toast.success(res.data.message);
+      setData({
+        email: "",
+        password: "",
+      });
+    } catch (error) {
+      console.log(error);
 
-    console.log(res.data.message);
-    setData({
-      email: "",
-      password: "",
-    });
+      toast.error(error.response.data.message);
+    }
   };
 
   return (

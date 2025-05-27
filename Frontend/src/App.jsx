@@ -7,11 +7,13 @@ import About from "./pages/About";
 import Login from "./pages/Login";
 import Footer from "./components/Footer";
 import Registration from "./pages/Registration";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   return (
     <>
       <Router>
+        <Toaster/>
         <Navbar />
         <main>
           <Routes>

@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TermsModal from "../components/TermsModal";
+import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 
 const Registration = () => {
   const navigate = useNavigate();
   const [agreed, setAgreed] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+
+  const [error, setError] = useState({});
 
   const [data, setData] = useState({
     name: "",
@@ -28,7 +31,7 @@ const Registration = () => {
   };
 
   const handelInputChange = (e) => {
-    const { name, value} = e.target;
+    const { name, value } = e.target;
 
     setData((prev) => ({
       ...prev,
@@ -37,44 +40,82 @@ const Registration = () => {
     // console.log(name, value);
   };
 
+  const validate = () => {
+    let tempErrors = {};
+    if (!/^[A-Za-z/s]+$/.test(data.name) || data.name.length < 3) {
+      tempErrors.name =
+        "Please use only Alphabets and should be more than 3 characters";
+    }
+
+    if (!/^[6-9]\d{9}$/.test(data.phone)) {
+      tempErrors.phone = "Please enter a valid 10-digit Mobile Number";
+    }
+
+    if (
+      !/^[A-Za-z\d._]+@(gmail.com|yahoo.com|outlook.com|ricr.in)$/.test(
+        data.email
+      )
+    ) {
+      tempErrors.email = "Please enter a valid email";
+    }
+
+    if (!/^(?=.*[A-Z])(?=.*[a-zA-Z])(?=.*\d).{6,}$/.test(data.password)) {
+      tempErrors.password =
+        "Must be greater than 6 characters also conntain character, number, uppercase letter";
+    } else if (data.password !== data.confirmPassword) {
+      tempErrors.password = "Password doesn't match";
+    }
+
+    setError(tempErrors);
+
+    return Object.keys(tempErrors).length === 0;
+  };
+
   const handelSubmit = async (e) => {
     e.preventDefault();
     console.log(data);
 
-    if (data.password !== data.confirmPassword) {
-      alert("Password and confirm password must be same");
+    try {
+      if (!validate(data)) {
+        return;
+      }
+
+      const res = await axios.post("http://localhost:4500/api/auth/register", {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        gender: data.gender,
+        dob: data.dob,
+        qualification: data.qualification,
+        department: data.department,
+        position: data.position,
+        hiredDate: data.hiredDate,
+        salary: data.salary,
+        password: data.password,
+      });
+
+      toast.success(res.data.message);
+
+      setData({
+        name: "",
+        email: "",
+        phone: "",
+        gender: "",
+        dob: "",
+        qualification: "",
+        department: "",
+        position: "",
+        hiredDate: "",
+        salary: "",
+        password: "",
+        confirmPassword: "",
+      });
+
+      console.log(res.data);
+    } catch (error) {
+      console.log(error);
+      toast.error("Server Error");
     }
-
-    const res = await axios.post("http://localhost:4500/api/auth/register", {
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      gender: data.gender,
-      dob: data.dob,
-      qualification: data.qualification,
-      department: data.department,
-      position: data.position,
-      hiredDate: data.hiredDate,
-      salary: data.salary,
-      password: data.password,
-    });
-
-    setData({
-      name: "",
-      email: "",
-      phone: "",
-      gender: "",
-      dob: "",
-      qualification: "",
-      department: "",
-      position: "",
-      hiredDate: "",
-      salary: "",
-      password: "",
-      confirmPassword: "",
-    });
-
-    console.log(res.data);
   };
 
   return (
@@ -104,6 +145,7 @@ const Registration = () => {
           >
             Full Name
           </label>
+          {error.name && <p className="text-sm text-red-700">{error.name}</p>}
         </div>
 
         {/* Email & Phone */}
@@ -125,6 +167,9 @@ const Registration = () => {
             >
               Email Address
             </label>
+            {error.email && (
+              <p className="text-sm text-red-700">{error.email}</p>
+            )}
           </div>
           <div className="relative">
             <input
@@ -143,6 +188,9 @@ const Registration = () => {
             >
               Phone Number
             </label>
+            {error.phone && (
+              <p className="text-sm text-red-700">{error.phone}</p>
+            )}
           </div>
         </div>
 
@@ -165,6 +213,9 @@ const Registration = () => {
             >
               Password
             </label>
+            {error.password && (
+              <p className="text-sm text-red-700">{error.password}</p>
+            )}
           </div>
           <div className="relative">
             <input
