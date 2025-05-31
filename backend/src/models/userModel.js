@@ -19,6 +19,22 @@ const userSchema = mongoose.Schema(
       default: "Active",
       required: true,
     },
+    startShiftTime: { type: String, required: true }, // e.g., "09:00"
+    endShiftTime: { type: String, required: true }, // e.g., "18:00"
+    address: { type: String, required: true },
+    weekOff: {
+      type: String,
+      enum: [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ],
+      required: true,
+    },
     profilePic: { type: String },
   },
   { timestamps: true }

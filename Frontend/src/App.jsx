@@ -8,12 +8,14 @@ import Login from "./pages/Login";
 import Footer from "./components/Footer";
 import Registration from "./pages/Registration";
 import { Toaster } from "react-hot-toast";
+import UserDashboardSidebar from "./components/UserDashboardSidebar";
+import DashboardHome from "./pages/DashboardHome";
 
 const App = () => {
   return (
     <>
       <Router>
-        <Toaster/>
+        <Toaster />
         <Navbar />
         <main>
           <Routes>
@@ -22,6 +24,8 @@ const App = () => {
             <Route path="/contact" element={<ContactUs />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Registration />} />
+            <Route path="/userDashboard" element={<UserDashboardSidebar />} />
+            <Route path="/dashboardHome" element={<DashboardHome />} />
           </Routes>
         </main>
         <Footer />

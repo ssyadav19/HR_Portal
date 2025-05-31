@@ -1,7 +1,7 @@
 import { React, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import toast from "react-hot-toast";
+import axios from "../config/Api";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ const Login = () => {
     console.log(data);
     try {
       const res = await axios.post(
-        "http://localhost:4500/api/auth/login",
+        "/api/auth/login",
         data
       );
 
@@ -32,6 +32,8 @@ const Login = () => {
         email: "",
         password: "",
       });
+
+      navigate("/userDashboard");
     } catch (error) {
       console.log(error);
 

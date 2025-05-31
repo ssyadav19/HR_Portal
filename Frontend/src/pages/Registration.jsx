@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TermsModal from "../components/TermsModal";
 import toast, { Toaster } from "react-hot-toast";
-import axios from "axios";
+import axios from "../config/Api";
 
 const Registration = () => {
   const navigate = useNavigate();
@@ -24,7 +24,13 @@ const Registration = () => {
     salary: "",
     password: "",
     confirmPassword: "",
+    startShiftTime: "",
+    endShiftTime: "",
+    address: "",
+    weekOff: "",
   });
+
+  // console.log(data);
 
   const handleCheckboxChange = (e) => {
     setAgreed(e.target.checked);
@@ -40,11 +46,27 @@ const Registration = () => {
     // console.log(name, value);
   };
 
+  const isAtLeast18YearsOld = (dobString) => {
+    const dob = new Date(dobString);
+    const today = new Date();
+
+    const age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+    const dayDiff = today.getDate() - dob.getDate();
+
+    const isBirthdayPassed = monthDiff > 0 || (monthDiff === 0 && dayDiff >= 0);
+    const actualAge = isBirthdayPassed ? age : age - 1;
+
+    return actualAge >= 18;
+  };
+
   const validate = () => {
     let tempErrors = {};
-    if (!/^[A-Za-z/s]+$/.test(data.name) || data.name.length < 3) {
+    if (!/^[A-Za-z/s]+$/.test(data.name)) {
       tempErrors.name =
         "Please use only Alphabets and should be more than 3 characters";
+    } else if (data.name.length < 3) {
+      tempErrors.name = "Should be more than 3 characters";
     }
 
     if (!/^[6-9]\d{9}$/.test(data.phone)) {
@@ -62,9 +84,21 @@ const Registration = () => {
     if (!/^(?=.*[A-Z])(?=.*[a-zA-Z])(?=.*\d).{6,}$/.test(data.password)) {
       tempErrors.password =
         "Must be greater than 6 characters also conntain character, number, uppercase letter";
-    } else if (data.password !== data.confirmPassword) {
-      tempErrors.password = "Password doesn't match";
     }
+
+    if (data.password !== data.confirmPassword) {
+      tempErrors.confirmPassword = "Password doesn't match";
+    }
+
+    if (!isAtLeast18YearsOld(data.dob)) {
+      tempErrors.dob = "You must be at least 18 years old to register.";
+    }
+
+    if (!data.gender) {
+      tempErrors.gender = "Please select your gender";
+    }
+
+    // console.log(tempErrors);
 
     setError(tempErrors);
 
@@ -73,12 +107,14 @@ const Registration = () => {
 
   const handelSubmit = async (e) => {
     e.preventDefault();
-    console.log(data);
+    // console.log(data);
 
     try {
       if (!validate(data)) {
         return;
       }
+
+      // console.log(data);
 
       const res = await axios.post("http://localhost:4500/api/auth/register", {
         name: data.name,
@@ -92,9 +128,24 @@ const Registration = () => {
         hiredDate: data.hiredDate,
         salary: data.salary,
         password: data.password,
+        startShiftTime: data.startShiftTime,
+        endShiftTime: data.endShiftTime,
+        address: data.address,
+        weekOff: data.weekOff,
       });
 
-      toast.success(res.data.message);
+      // console.log("submit", data);
+
+      // toast.success(res.data.message);
+      toast.success(res.data.message, "Redirecting...", {
+        duration: 2000,
+        icon: "🚀",
+      });
+
+      // Redirect after short delay
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
 
       setData({
         name: "",
@@ -109,6 +160,10 @@ const Registration = () => {
         salary: "",
         password: "",
         confirmPassword: "",
+        startShift: "",
+        endShift: "",
+        address: "",
+        weekOff: "",
       });
 
       console.log(res.data);
@@ -234,6 +289,9 @@ const Registration = () => {
             >
               Confirm Password
             </label>
+            {error.confirmPassword && (
+              <p className="text-sm text-red-700">{error.confirmPassword}</p>
+            )}
           </div>
         </div>
 
@@ -275,6 +333,9 @@ const Registration = () => {
               <span className="peer-checked:text-emerald-600"> Other</span>
             </label>
           </div>
+          {error.gender && (
+            <p className="text-sm text-red-700">{error.gender}</p>
+          )}
         </div>
 
         {/* Date of Birth */}
@@ -295,6 +356,7 @@ const Registration = () => {
           >
             Date of Birth
           </label>
+          {error.dob && <p className="text-sm text-red-700">{error.dob}</p>}
         </div>
 
         {/* Qualifications & Department */}
@@ -393,6 +455,86 @@ const Registration = () => {
           >
             Salary
           </label>
+        </div>
+        {/* Start and End Shift Times */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="relative">
+            <input
+              id="startShift"
+              type="time"
+              placeholder=" "
+              name="startShiftTime"
+              value={data.startShiftTime}
+              onChange={handelInputChange}
+              className="peer w-full border border-gray-300 p-3 focus:pt-5 transition-all rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              required
+            />
+            <label
+              htmlFor="startShift"
+              className="absolute left-3 top-3 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-not-placeholder-shown:text-[14px] peer-not-placeholder-shown:text-gray-400 peer-not-placeholder-shown:top-0 peer-focus:top-0 peer-focus:text-sm peer-focus:text-emerald-600"
+            >
+              Start Shift
+            </label>
+          </div>
+          <div className="relative">
+            <input
+              id="endShift"
+              type="time"
+              placeholder=" "
+              name="endShiftTime"
+              value={data.endShiftTime}
+              onChange={handelInputChange}
+              className="peer w-full border border-gray-300 p-3 focus:pt-5 transition-all rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              required
+            />
+            <label
+              htmlFor="endShift"
+              className="absolute left-3 top-3 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-not-placeholder-shown:text-[14px] peer-not-placeholder-shown:text-gray-400 peer-not-placeholder-shown:top-0 peer-focus:top-0 peer-focus:text-sm peer-focus:text-emerald-600"
+            >
+              End Shift
+            </label>
+          </div>
+        </div>
+
+        {/* Address */}
+        <div className="relative mt-4">
+          <textarea
+            id="address"
+            placeholder=" "
+            name="address"
+            value={data.address}
+            onChange={handelInputChange}
+            rows={3}
+            className="peer w-full border border-gray-300 p-3 focus:pt-5 transition-all rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            required
+          />
+          <label
+            htmlFor="address"
+            className="absolute left-3 top-3 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-not-placeholder-shown:text-[14px] peer-not-placeholder-shown:text-gray-400 peer-not-placeholder-shown:top-0 peer-focus:top-0 peer-focus:text-sm peer-focus:text-emerald-600"
+          >
+            Address
+          </label>
+        </div>
+
+        {/* Week Off Dropdown */}
+        <div className="mt-4">
+          <label className="block text-gray-600 text-sm mb-1">Week Off</label>
+          <select
+            name="weekOff"
+            value={data.weekOff}
+            onChange={handelInputChange}
+            className="w-full border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            required
+          >
+            <option value="">Select a day</option>
+            <option>Sunday</option>
+            <option>Monday</option>
+            <option>Tuesday</option>
+            <option>Wednesday</option>
+            <option>Thursday</option>
+            <option>Friday</option>
+            <option>Saturday</option>
+          </select>
         </div>
 
         {/* Terms & Conditions */}
