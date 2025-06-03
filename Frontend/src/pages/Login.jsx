@@ -1,10 +1,18 @@
-import { React, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { React, useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "../config/Api";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.fromRegister) {
+      if (location.state.toastId) toast.dismiss(location.state.toastId);
+      toast.success("Please login to continue");
+    }
+  }, [location]);
 
   const [data, setData] = useState({
     email: "",
@@ -22,10 +30,7 @@ const Login = () => {
     e.preventDefault();
     console.log(data);
     try {
-      const res = await axios.post(
-        "/api/auth/login",
-        data
-      );
+      const res = await axios.post("/api/auth/login", data);
 
       toast.success(res.data.message);
       setData({

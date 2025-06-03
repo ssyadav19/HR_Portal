@@ -7,7 +7,8 @@ export const userProtect = async (req, res, next) => {
   if (token) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-      const user = await User.findById(decoded.key);
+      const user = await User.findById(decoded.key).select("-password");
+      req.user = user;
       next();
     } catch (error) {
       const err = new Error("Not Authorized, Token Failed");

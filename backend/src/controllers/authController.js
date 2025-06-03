@@ -61,7 +61,17 @@ export const register = async (req, res) => {
       !weekOff
     ) {
       console.log("All fields required");
+      const error = new Error("All fields required");
+      error.statusCode = 400;
+      throw error;
       // return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const user = await User.findOne({ email });
+    if (user) {
+      const error = new Error("Email already exists");
+      error.statusCode = 405;
+      throw error;
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -88,8 +98,9 @@ export const register = async (req, res) => {
 
     res.status(201).json({ message: "User created", newUser });
   } catch (error) {
-    console.error("Registration error:", error.message);
-    res.status(500).json({ message: "Server error" });
+    console.error("Registration error:", error);
+
+    res.status(error.status).json({ message: error.message });
   }
 };
 
@@ -123,5 +134,15 @@ export const login = async (req, res) => {
     res.status(201).json({ message: `welcome back ${user.name}` });
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const logout = (req, res, next) => {
+  try {
+    res.clearCookie("jwt");
+    res.status(200).json({ message: "Logout successfull" });
+  } catch (error) {
+    console.log(error);
+    next(error);
   }
 };

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TermsModal from "../components/TermsModal";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import axios from "../config/Api";
 
 const Registration = () => {
@@ -62,9 +62,8 @@ const Registration = () => {
 
   const validate = () => {
     let tempErrors = {};
-    if (!/^[A-Za-z/s]+$/.test(data.name)) {
-      tempErrors.name =
-        "Please use only Alphabets and should be more than 3 characters";
+    if (!/^[A-Za-z\s]+$/.test(data.name)) {
+      tempErrors.name = "Please use only Alphabets";
     } else if (data.name.length < 3) {
       tempErrors.name = "Should be more than 3 characters";
     }
@@ -116,7 +115,7 @@ const Registration = () => {
 
       // console.log(data);
 
-      const res = await axios.post("http://localhost:4500/api/auth/register", {
+      const registerPromise = axios.post("/api/auth/register", {
         name: data.name,
         email: data.email,
         phone: data.phone,
@@ -137,15 +136,29 @@ const Registration = () => {
       // console.log("submit", data);
 
       // toast.success(res.data.message);
-      toast.success(res.data.message, "Redirecting...", {
-        duration: 2000,
-        icon: "🚀",
+      // toast.success(res.data.message, "Redirecting...", {
+      //   duration: 2000,
+      //   icon: "🚀",
+      // });
+
+      // // Redirect after short delay
+      // setTimeout(() => {
+      //   navigate("/login");
+      // }, 2000);
+
+      toast.promise(registerPromise, {
+        loading: "Creating Account",
+        success: (res) => res.data.message,
+        error: (error) => error.response.data.message || "server error",
       });
 
-      // Redirect after short delay
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
+      const res = await registerPromise;
+
+      const id = toast.loading("Redirecting to login page...");
+      navigate("/login", {
+        replace: true,
+        state: { fromRegister: true, toastId: id },
+      });
 
       setData({
         name: "",
@@ -160,8 +173,8 @@ const Registration = () => {
         salary: "",
         password: "",
         confirmPassword: "",
-        startShift: "",
-        endShift: "",
+        startShiftTime: "",
+        endShiftTime: "",
         address: "",
         weekOff: "",
       });
@@ -169,7 +182,7 @@ const Registration = () => {
       console.log(res.data);
     } catch (error) {
       console.log(error);
-      toast.error("Server Error");
+      // toast.error("Server Error");
     }
   };
 
@@ -460,7 +473,7 @@ const Registration = () => {
         <div className="grid grid-cols-2 gap-4">
           <div className="relative">
             <input
-              id="startShift"
+              id="startShiftTime"
               type="time"
               placeholder=" "
               name="startShiftTime"
@@ -470,7 +483,7 @@ const Registration = () => {
               required
             />
             <label
-              htmlFor="startShift"
+              htmlFor="startShiftTime"
               className="absolute left-3 top-3 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-not-placeholder-shown:text-[14px] peer-not-placeholder-shown:text-gray-400 peer-not-placeholder-shown:top-0 peer-focus:top-0 peer-focus:text-sm peer-focus:text-emerald-600"
             >
               Start Shift
@@ -478,7 +491,7 @@ const Registration = () => {
           </div>
           <div className="relative">
             <input
-              id="endShift"
+              id="endShiftTime"
               type="time"
               placeholder=" "
               name="endShiftTime"
@@ -488,7 +501,7 @@ const Registration = () => {
               required
             />
             <label
-              htmlFor="endShift"
+              htmlFor="endShiftTime"
               className="absolute left-3 top-3 text-gray-500 text-sm transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-not-placeholder-shown:text-[14px] peer-not-placeholder-shown:text-gray-400 peer-not-placeholder-shown:top-0 peer-focus:top-0 peer-focus:text-sm peer-focus:text-emerald-600"
             >
               End Shift

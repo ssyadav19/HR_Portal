@@ -6,6 +6,9 @@ import { TiClipboard } from "react-icons/ti";
 import { SiSimpleanalytics } from "react-icons/si";
 import { SlCalender } from "react-icons/sl";
 import DashboardHome from "../pages/DashboardHome";
+import { IoMdExit } from "react-icons/io";
+import axios from "../config/Api";
+import toast from "react-hot-toast";
 
 const UserDashboardSidebar = () => {
   const navigate = useNavigate();
@@ -24,25 +27,10 @@ const UserDashboardSidebar = () => {
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
       <aside className="w-64 bg-emerald-600 text-white min-h-screen p-6">
-        <h2 className="text-2xl font-bold text-center mb-6">
+        {/* <h2 className="text-2xl font-bold text-center mb-6">
           Employee Dashboard
-        </h2>
+        </h2> */}
         <nav className="space-y-4">
-          {/* <div> */}
-          {/* {sideBarItems.map((item) => {
-            <button
-              key={item.id}
-              className={`block text-lg p-2 rounded-md ${
-                activeTab === item.id ? "hover:bg-emerald-700" : ""
-              }`}
-              onClick={() => {
-                setActiveTab(item.id);
-              }}
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </button>;
-          })} */}
           {sideBarItems.map((item) => (
             <button
               key={item.id}
@@ -63,6 +51,30 @@ const UserDashboardSidebar = () => {
 
           {/* </div> */}
         </nav>
+        <button
+          className="flex items-center gap-2 w-full text-left text-lg p-2 rounded-md bg-red-600 hover:bg-red-700 mt-10 transition-all"
+          onClick={async () => {
+            const logoutPromise = axios.get("/api/auth/logout");
+            toast.promise(logoutPromise, {
+              loading: "Logging out..",
+              success: (res) => res?.data?.message,
+              error: (error) => error?.response?.data?.message,
+            });
+
+            try {
+              const res = await logoutPromise;
+              navigate("/");
+              console.log(res);
+            } catch (error) {
+              console.log(error);
+            }
+          }}
+        >
+          <span>
+            <IoMdExit />
+          </span>
+          <span>Logout</span>
+        </button>
       </aside>
 
       {/* Main Content */}

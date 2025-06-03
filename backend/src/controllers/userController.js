@@ -2,29 +2,11 @@ import User from "../models/userModel.js";
 
 export const getUserData = (req, res, next) => {
   try {
-    const userId = req.user._id;
+    const userData = req.user;
 
-    const user = User.findById(userId);
-    if (!user) {
-      const error = new Error("User not found");
-      error.statusCode = 404;
-      return next(error);
-    }
+    // console.log(userData);
 
-    res.status(200).json({
-      user: {
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        gender: user.gender,
-        department: user.department,
-        dob: user.dob,
-        position: user.position,
-        startShiftTime: user.startShiftTime,
-        endShiftTime: user.endShiftTime,
-        address: user.address,
-      },
-    });
+    res.status(200).json({message:"user data fetched", userData});
   } catch (error) {
     console.log(error);
     next(error);
